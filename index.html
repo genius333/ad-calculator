@@ -1,11 +1,21 @@
-<!DOCTYPE html>
-<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Самая важная строка для телефона: -->
+    
+    <!-- Иконки для PWA и Яндекс -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon-precomposed" href="icon-192.png">
+    
+    <!-- Мета-теги для мобильных -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>АД-Калькулятор</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="АД-Калькулятор">
     <meta name="theme-color" content="#007bff">
+    
+    <title>АД-Калькулятор</title>
+    <link rel="manifest" href="manifest.json">
+    
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,14 +42,12 @@
             border-radius: 4px;
         }
 
-        /* Карточка измерения */
         .card {
             background: white;
             border-radius: 16px;
             padding: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);        }
 
         .card-title {
             font-weight: bold;
@@ -47,9 +55,9 @@
             margin-bottom: 10px;
             font-size: 16px;
             border-bottom: 1px solid #eee;
-            padding-bottom: 5px;        }
+            padding-bottom: 5px;
+        }
 
-        /* Поля ввода на всю ширину */
         .input-group {
             margin-bottom: 10px;
         }
@@ -63,9 +71,9 @@
 
         input[type="number"] {
             width: 100%;
-            box-sizing: border-box; /* Чтобы padding не ломал ширину */
+            box-sizing: border-box;
             padding: 14px;
-            font-size: 18px; /* Крупный текст */
+            font-size: 18px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             outline: none;
@@ -78,7 +86,6 @@
             background: #fff;
         }
 
-        /* Главная кнопка */
         .btn-calc {
             width: 100%;
             padding: 16px;
@@ -89,14 +96,13 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+            margin-bottom: 20px;            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
         }
 
-        /* Блок результата */
         #result-box {
             display: none;
-            background: white;            border-radius: 16px;
+            background: white;
+            border-radius: 16px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px;
@@ -124,7 +130,6 @@
             font-size: 18px;
         }
 
-        /* Кнопка Сохранить */
         #save-btn {
             width: 100%;
             padding: 16px;
@@ -135,164 +140,14 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            display: none; /* Скрыта */
+            display: none;
         }
 
         .saved-msg {
             text-align: center;
-            color: #28a745;
-            font-weight: bold;
+            color: #28a745;            font-weight: bold;
             margin-top: 10px;
             display: none;
         }
-    </style></head>
-<body>
-
-<div class="header">
-    <h1>🩺 АД-Калькулятор</h1>
-    <span>v3.0 Mobile</span>
-</div>
-
-<!-- Замер 1 -->
-<div class="card">
-    <div class="card-title">Замер №1</div>
-    <div class="input-group">
-        <label>Верхнее (Систола)</label>
-        <input type="number" inputmode="numeric" id="s1" placeholder="120">
-    </div>
-    <div class="input-group">
-        <label>Нижнее (Диастола)</label>
-        <input type="number" inputmode="numeric" id="d1" placeholder="80">
-    </div>
-    <div class="input-group">
-        <label>Пульс</label>
-        <input type="number" inputmode="numeric" id="p1" placeholder="70">
-    </div>
-</div>
-
-<!-- Замер 2 -->
-<div class="card">
-    <div class="card-title">Замер №2</div>
-    <div class="input-group">
-        <label>Верхнее (Систола)</label>
-        <input type="number" inputmode="numeric" id="s2" placeholder="120">
-    </div>
-    <div class="input-group">
-        <label>Нижнее (Диастола)</label>
-        <input type="number" inputmode="numeric" id="d2" placeholder="80">
-    </div>
-    <div class="input-group">
-        <label>Пульс</label>
-        <input type="number" inputmode="numeric" id="p2" placeholder="70">
-    </div>
-</div>
-
-<!-- Замер 3 -->
-<div class="card">
-    <div class="card-title">Замер №3</div>
-    <div class="input-group">
-        <label>Верхнее (Систола)</label>
-        <input type="number" inputmode="numeric" id="s3" placeholder="120">
-    </div>
-    <div class="input-group">        <label>Нижнее (Диастола)</label>
-        <input type="number" inputmode="numeric" id="d3" placeholder="80">
-    </div>
-    <div class="input-group">
-        <label>Пульс</label>
-        <input type="number" inputmode="numeric" id="p3" placeholder="70">
-    </div>
-</div>
-
-<button class="btn-calc" onclick="calculate()">🔥 РАССЧИТАТЬ</button>
-
-<div id="result-box">
-    <div class="res-row">
-        <span>Среднее АД:</span>
-        <span class="res-val" id="res-bp">-- / --</span>
-    </div>
-    <div class="res-row">
-        <span>Средний пульс:</span>
-        <span class="res-val" id="res-pulse">--</span>
-    </div>
-    <div class="badge" id="status-badge">Норма</div>
-
-    <button id="save-btn">💾 Сохранить в историю</button>
-    <div class="saved-msg" id="saved-msg">✅ Запись добавлена в журнал!</div>
-</div>
-
-<script>
-    let avgS = 0, avgD = 0, avgP = 0;
-
-    function calculate() {
-        // Собираем данные
-        const v1 = [document.getElementById('s1').value, document.getElementById('d1').value, document.getElementById('p1').value];
-        const v2 = [document.getElementById('s2').value, document.getElementById('d2').value, document.getElementById('p2').value];
-        const v3 = [document.getElementById('s3').value, document.getElementById('d3').value, document.getElementById('p3').value];
-
-        // Проверка: все ли заполнены
-        if (v1.some(x=>!x) || v2.some(x=>!x) || v3.some(x=>!x)) {
-            alert('Пожалуйста, заполните все 9 полей!');
-            return;
-        }
-
-        // Расчет
-        avgS = Math.round((Number(v1[0]) + Number(v2[0]) + Number(v3[0])) / 3);
-        avgD = Math.round((Number(v1[1]) + Number(v2[1]) + Number(v3[1])) / 3);
-        avgP = Math.round((Number(v1[2]) + Number(v2[2]) + Number(v3[2])) / 3);
-
-        // Вывод
-        document.getElementById('res-bp').innerText = avgS + ' / ' + avgD;
-        document.getElementById('res-pulse').innerText = avgP;
-        // Статус
-        const badge = document.getElementById('status-badge');
-        if (avgS >= 140 || avgD >= 90) {
-            badge.innerText = '⚠️ Гипертензия 2';
-            badge.style.background = '#dc3545'; // Красный
-        } else if (avgS >= 130 || avgD >= 80) {
-            badge.innerText = '🧡 Гипертензия 1';
-            badge.style.background = '#fd7e14'; // Оранжевый
-        } else if (avgS >= 120 && avgD < 80) {
-            badge.innerText = '⚡ Повышенное';
-            badge.style.background = '#ffc107'; // Желтый
-            badge.style.color = '#000';
-        } else {
-            badge.innerText = '✅ Норма';
-            badge.style.background = '#28a745'; // Зеленый
-            badge.style.color = '#fff';
-        }
-
-        // Показываем результат и кнопку
-        const resBox = document.getElementById('result-box');
-        resBox.style.display = 'block';
-        
-        const saveBtn = document.getElementById('save-btn');
-        saveBtn.style.display = 'block'; // Показываем кнопку
-        document.getElementById('saved-msg').style.display = 'none';
-
-        // Прокрутка вниз
-        resBox.scrollIntoView({behavior: 'smooth'});
-    }
-
-    // Логика сохранения
-    document.getElementById('save-btn').onclick = function() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('ru-RU') + ', ' + 
-                        now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
-
-        const record = {
-            date: dateStr,
-            systolic: avgS,
-            diastolic: avgD,
-            pulse: avgP
-        };
-
-        let history = JSON.parse(localStorage.getItem('ad_history') || '[]');
-        history.unshift(record);
-        localStorage.setItem('ad_history', JSON.stringify(history));
-
-        this.style.display = 'none';
-        document.getElementById('saved-msg').style.display = 'block';
-    };</script>
-
-</body>
-</html>
+    </style>
+</head>
