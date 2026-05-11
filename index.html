@@ -2,274 +2,140 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АД-Калькулятор</title>
     <meta name="theme-color" content="#2196f3">
     <style>
-        :root {
-            --primary: #2196f3;
-            --bg: #f5f7fa;
-            --card-bg: #ffffff;
-            --text: #333333;
-            --green: #4caf50;
-            --radius: 16px;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container { width: 100%; max-width: 500px; }
-        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 25px; color: var(--primary); }
+        body { font-family: -apple-system, sans-serif; background: #f4f6f9; margin: 0; padding: 15px; }
+        .box { max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2196f3; margin: 0 0 20px; font-size: 1.4rem; }
+        .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .field { display: flex; flex-direction: column; }
+        .field label { font-size: 0.75rem; color: #666; margin-bottom: 4px; }
+        .field input { padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; text-align: center; font-size: 1rem; }
+        .btn-main { width: 100%; padding: 14px; background: #2196f3; color: #fff; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
         
-        .measure-block {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: var(--radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-
-        .measure-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-            color: var(--primary);
-            border-bottom: 2px solid #eee;
-            padding-bottom: 5px;
-        }
-
-        .input-group {
-            display: grid;            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-        }
-
-        .input-wrapper { display: flex; flex-direction: column; }
-        label { font-size: 0.75rem; color: #666; margin-bottom: 4px; }
+        #res-box { display: none; background: #f8f9fa; border-radius: 12px; padding: 15px; margin-top: 10px; }
+        .res-line { display: flex; justify-content: space-between; margin: 8px 0; font-size: 1.05rem; }
+        .badge { padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; color: #fff; margin: 15px 0; }
         
-        input {
-            width: 100%;
-            padding: 12px 5px;
-            font-size: 1.1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            text-align: center;
-            outline: none;
-            box-sizing: border-box;
-        }
-        input:focus { border-color: var(--primary); }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-        .btn-calc {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            background: var(--primary);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* Блок результата */
-        #result-block {
-            display: none; /* Скрыт по умолчанию */
-            background: var(--card-bg);
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem; }
-        .result-val { font-weight: bold; }
-
-        .status-badge {            margin-top: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-        }
-
         /* КНОПКА СОХРАНЕНИЯ */
-        .btn-save {
+        #save-btn {
             width: 100%;
-            margin-top: 20px;
             padding: 14px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
             font-size: 1rem;
             font-weight: bold;
-            color: white;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 8px;
             cursor: pointer;
-            display: none; /* Скрыта через CSS */
-        }
-        
-        .save-feedback {
-            margin-top: 10px;
-            color: #4CAF50;
-            font-weight: bold;
+            margin-top: 15px;
             display: none;
         }
-
-        /* Счетчик истории */
-        .history-badge {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #888;
-            display: none; /* Показываем только когда есть расчет */
-        }
-        .history-badge span { font-weight: bold; color: var(--primary); }
+        .ok-msg { text-align: center; color: #4CAF50; font-weight: bold; margin-top: 10px; display: none; }
+        .err { color: #e53935; text-align: center; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🩺 АД-Калькулятор</h1>
+<div class="box">
+    <h1>🩺 АД-Калькулятор <span style="font-size:0.8rem;color:#999">v2.1</span></h1>
 
-    <!-- Ввод данных -->
-    <div class="measure-block">
-        <span class="measure-title">Замер №1</span>
-        <div class="input-group">
-            <div class="input-wrapper"><label>Систол.</label><input type="number" id="s1"></div>
-            <div class="input-wrapper"><label>Диаст.</label><input type="number" id="d1"></div>            <div class="input-wrapper"><label>Пульс</label><input type="number" id="p1"></div>
-        </div>
+    <div class="row">
+        <div class="field"><label>Замер 1: Сист.</label><input type="number" id="s1"></div>
+        <div class="field"><label>Диаст.</label><input type="number" id="d1"></div>
+        <div class="field"><label>Пульс</label><input type="number" id="p1"></div>
     </div>
-    <div class="measure-block">
-        <span class="measure-title">Замер №2</span>
-        <div class="input-group">
-            <div class="input-wrapper"><label>Систол.</label><input type="number" id="s2"></div>
-            <div class="input-wrapper"><label>Диаст.</label><input type="number" id="d2"></div>
-            <div class="input-wrapper"><label>Пульс</label><input type="number" id="p2"></div>
-        </div>
+    <div class="row">        <div class="field"><label>Замер 2: Сист.</label><input type="number" id="s2"></div>
+        <div class="field"><label>Диаст.</label><input type="number" id="d2"></div>
+        <div class="field"><label>Пульс</label><input type="number" id="p2"></div>
     </div>
-    <div class="measure-block">
-        <span class="measure-title">Замер №3</span>
-        <div class="input-group">
-            <div class="input-wrapper"><label>Систол.</label><input type="number" id="s3"></div>
-            <div class="input-wrapper"><label>Диаст.</label><input type="number" id="d3"></div>
-            <div class="input-wrapper"><label>Пульс</label><input type="number" id="p3"></div>
-        </div>
+    <div class="row">
+        <div class="field"><label>Замер 3: Сист.</label><input type="number" id="s3"></div>
+        <div class="field"><label>Диаст.</label><input type="number" id="d3"></div>
+        <div class="field"><label>Пульс</label><input type="number" id="p3"></div>
     </div>
 
-    <div style="color:red; text-align:center; margin-bottom:10px; display:none;" id="error-msg">Заполните все поля!</div>
-    <button class="btn-calc" onclick="calculate()">Рассчитать</button>
+    <button class="btn-main" onclick="calc()">Рассчитать</button>
+    <div class="err" id="err">⚠️ Заполни все 9 полей числами!</div>
 
-    <!-- Результат -->
-    <div id="result-block">
-        <div class="result-row">
-            <span>Среднее АД:</span>
-            <span class="result-val" id="res-bp">-- / --</span>
-        </div>
-        <div class="result-row">
-            <span>Пульс:</span>
-            <span class="result-val" id="res-pulse">--</span>
-        </div>
-        <div class="status-badge" id="status-badge">Норма</div>
+    <div id="res-box">
+        <div class="res-line"><span>Среднее АД:</span><strong id="r-bp">--</strong></div>
+        <div class="res-line"><span>Средний пульс:</span><strong id="r-p">--</strong></div>
+        <div class="badge" id="badge">Норма</div>
         
-        <!-- КНОПКА СОХРАНЕНИЯ -->
-        <button id="save-btn" class="btn-save">💾 Сохранить в Журнал</button>
-        <div id="save-feedback" class="save-feedback">✅ Добавлено в журнал!</div>
-        
-        <!-- Счетчик -->
-        <div class="history-badge" id="history-counter">Всего записей в журнале: <span id="count-val">0</span></div>
+        <button id="save-btn">💾 Сохранить в историю</button>
+        <div class="ok-msg" id="ok-msg">✅ Добавлено в журнал!</div>
     </div>
 </div>
 
 <script>
-    let currentAvgS = 0;
-    let currentAvgD = 0;
-    let currentAvgP = 0;
+// 🔥 ЯДЕРНЫЙ СБРОС КЭША SERVICE WORKER
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+        console.log('✅ SW удалён, кэш сброшен');
+    });
+}
 
-    // 1. Функция Расчета    function calculate() {
-        const inputs = [
-            document.getElementById('s1').value, document.getElementById('d1').value, document.getElementById('p1').value,
-            document.getElementById('s2').value, document.getElementById('d2').value, document.getElementById('p2').value,
-            document.getElementById('s3').value, document.getElementById('d3').value, document.getElementById('p3').value
-        ];
+let avgS=0, avgD=0, avgP=0;
 
-        // Проверка заполненности
-        if (inputs.some(v => v === '')) {
-            document.getElementById('error-msg').style.display = 'block';
-            return;
-        }
-        document.getElementById('error-msg').style.display = 'none';
+function calc() {
+    // Проверка загрузки новой версии
+    console.log('🚀 Запущена версия 2.1');
+    
+    const v = [
+        document.getElementById('s1').value, document.getElementById('d1').value, document.getElementById('p1').value,
+        document.getElementById('s2').value, document.getElementById('d2').value, document.getElementById('p2').value,
+        document.getElementById('s3').value, document.getElementById('d3').value, document.getElementById('p3').value
+    ];
 
-        // Расчет
-        currentAvgS = Math.round((+inputs[0] + +inputs[3] + +inputs[6]) / 3);
-        currentAvgD = Math.round((+inputs[1] + +inputs[4] + +inputs[7]) / 3);
-        currentAvgP = Math.round((+inputs[2] + +inputs[5] + +inputs[8]) / 3);
-
-        // Вывод
-        document.getElementById('res-bp').textContent = `${currentAvgS} / ${currentAvgD}`;
-        document.getElementById('res-pulse').textContent = currentAvgP;
-
-        // Статус
-        const badge = document.getElementById('status-badge');
-        if (currentAvgS >= 140 || currentAvgD >= 90) {
-            badge.textContent = "⚠️ Гипертензия 2"; badge.style.backgroundColor = "#f44336";
-        } else if (currentAvgS >= 130 || currentAvgD >= 80) {
-            badge.textContent = "🧡 Гипертензия 1"; badge.style.backgroundColor = "#ff9800";
-        } else if (currentAvgS >= 120 && currentAvgD < 80) {
-            badge.textContent = "⚡ Повышенное"; badge.style.backgroundColor = "#ffc107";
-        } else {
-            badge.textContent = "✅ Норма"; badge.style.backgroundColor = "#4caf50";
-        }
-
-        // Показываем блок результата и КНОПКУ
-        document.getElementById('result-block').style.display = 'block';
-        
-        // ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ: Используем style.display напрямую
-        document.getElementById('save-btn').style.display = 'block';
-        document.getElementById('save-feedback').style.display = 'none';
-        
-        // Обновляем счетчик
-        updateCounter();
+    if (v.some(x => x === '' || x <= 0)) {
+        document.getElementById('err').style.display = 'block';
+        document.getElementById('res-box').style.display = 'none';
+        return;
     }
+    document.getElementById('err').style.display = 'none';
+    avgS = Math.round((+v[0]+v[3]+v[6])/3);
+    avgD = Math.round((+v[1]+v[4]+v[7])/3);
+    avgP = Math.round((+v[2]+v[5]+v[8])/3);
 
-    // 2. Функция Сохранения (ДЛЯ БУДУЩЕГО ЖУРНАЛА)
-    function saveToHistory() {
-        const now = new Date();
-        // Формат: 11.05.2026, 07:50        const dateStr = now.toLocaleDateString('ru-RU') + ', ' + 
-                        now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('r-bp').textContent = avgS + ' / ' + avgD;
+    document.getElementById('r-p').textContent = avgP;
 
-        // Объект записи
-        const record = {
-            date: dateStr,
-            systolic: currentAvgS,
-            diastolic: currentAvgD,
-            pulse: currentAvgP
-        };
+    const b = document.getElementById('badge');
+    if (avgS>=140 || avgD>=90) { b.textContent='⚠️ Гипертензия 2'; b.style.background='#f44336'; }
+    else if (avgS>=130 || avgD>=80) { b.textContent='🧡 Гипертензия 1'; b.style.background='#ff9800'; }
+    else if (avgS>=120 && avgD<80) { b.textContent='⚡ Повышенное'; b.style.background='#ffc107'; b.style.color='#000'; }
+    else { b.textContent='✅ Норма'; b.style.background='#4CAF50'; b.style.color='#fff'; }
 
-        // Берем старые, добавляем новые в начало
-        let history = JSON.parse(localStorage.getItem('ad_history') || '[]');
-        history.unshift(record);
-        localStorage.setItem('ad_history', JSON.stringify(history));
+    // Показываем блок
+    document.getElementById('res-box').style.display = 'block';
+    
+    // 🔥 ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ КНОПКУ
+    const btn = document.getElementById('save-btn');
+    btn.style.setProperty('display', 'block', 'important');
+    document.getElementById('ok-msg').style.display = 'none';
+    
+    // Прокрутка
+    document.getElementById('res-box').scrollIntoView({behavior:'smooth'});
+}
 
-        // Визуал
-        document.getElementById('save-feedback').style.display = 'block';
-        document.getElementById('save-btn').style.display = 'none'; // Скрываем кнопку после нажатия
-        updateCounter();
-    }
-
-    function updateCounter() {
-        let history = JSON.parse(localStorage.getItem('ad_history') || '[]');
-        document.getElementById('history-counter').style.display = 'block';
-        document.getElementById('count-val').textContent = history.length;
-    }
+// Привязка кнопки
+document.getElementById('save-btn').onclick = function() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ru-RU') + ', ' + now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+    
+    const record = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
+    let hist = JSON.parse(localStorage.getItem('ad_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('ad_history', JSON.stringify(hist));
+    
+    this.style.setProperty('display', 'none', 'important');
+    document.getElementById('ok-msg').style.display = 'block';
+    console.log('💾 Сохранено:', record);
+};
 </script>
 
 </body>
