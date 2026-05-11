@@ -2,10 +2,10 @@
   "name": "АД-Калькулятор",
   "short_name": "АД-Кальк",
   "description": "Калькулятор среднего артериального давления",
-  "start_url": "./",
+  "start_url": "/ad-calculator/",
   "display": "standalone",
-  "background_color": "#f5f7fa",
-  "theme_color": "#2196f3",
+  "background_color": "#f4f6f9",
+  "theme_color": "#007bff",
   "icons": [
     {
       "src": "icon-192.png",
