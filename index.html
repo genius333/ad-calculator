@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v13.0 Debug</span></div>
+<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v14.0 Final</span></div>
 
 <div class="card"><div class="card-title">Замер №1</div><div class="input-group"><label>Верхнее</label><input type="number" id="s1" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d1" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p1" placeholder="70"></div></div>
 <div class="card"><div class="card-title">Замер №2</div><div class="input-group"><label>Верхнее</label><input type="number" id="s2" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d2" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p2" placeholder="70"></div></div>
@@ -45,11 +45,9 @@
 
 <script>
     const GIST_ID = '969fd26ad9b155097eed81b0449a306f';
-    
-    // 🔐 ЗАШИФРОВАННЫЙ ТОКЕН
-    const ENCODED_TOKEN = 'Z2hwXzhZQmhFN3hmc2lhbnpEMmtmU0piSkgzVWNrRjR2MXV1NWZH';    const TOKEN = atob(ENCODED_TOKEN);
-    
-    let avgS = 0, avgD = 0, avgP = 0;
+    const ENCODED_TOKEN = 'Z2hwX2pVM0RtSXlFU3VEVDNnQ0xsc0g5NG45WHNYa01UZTJPTlRSVA==';
+    const TOKEN = atob(ENCODED_TOKEN);
+        let avgS = 0, avgD = 0, avgP = 0;
     let currentData = [];
 
     function calculate() {
@@ -93,13 +91,12 @@
             body: JSON.stringify({ files: { 'bp_logs.json': { content: JSON.stringify(updatedData) } } })
         });
 
-        // Если ошибка, читаем текст ошибки от GitHub
         if (!res.ok) {
             const errorText = await res.text();
-            throw new Error(`GitHub Error ${res.status}: ${errorText}`);        }
+            throw new Error(`GitHub Error ${res.status}: ${errorText}`);
+        }
         return true;
     }
-
     document.getElementById('save-btn').onclick = async function() {
         this.innerText = '⏳ Сохранение...';
         this.disabled = true;
@@ -109,7 +106,6 @@
             this.style.display = 'none';
             document.getElementById('saved-msg').style.display = 'block';
         } catch (e) {
-            // Показываем точную ошибку
             alert('Ошибка: ' + e.message);
             this.innerText = '☁️ Сохранить в облако';
             this.disabled = false;
