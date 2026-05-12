@@ -6,7 +6,7 @@
     <title>АД-Калькулятор</title>
     <meta name="theme-color" content="#007bff">
     <link rel="manifest" href="manifest.json">
-    <!-- Подключаем Firebase (версия 8, она проще для вставки в HTML) -->
+    <!-- Подключаем Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -47,7 +47,7 @@
 </div>
 
 <script>
-    //  ТВОИ НАСТРОЙКИ FIREBASE    const firebaseConfig = {
+    // 🔥 НАСТРОЙКИ FIREBASE (Вставлены автоматически)    const firebaseConfig = {
       apiKey: "AIzaSyBx4YWnqSfcjFZ8gPRzUesE7omHCpSOas",
       authDomain: "healthapp-d77d4.firebaseapp.com",
       databaseURL: "https://healthapp-d77d4-default-rtdb.europe-west1.firebasedatabase.app",
@@ -65,9 +65,23 @@
 
     // 🔹 Сохранение в Firebase
     function saveToFirebase(data) {
-        // Создаем новую запись в папке 'bp_logs'
         const newRef = database.ref('bp_logs').push();
         return newRef.set(data);
+    }
+
+    // 🔹 Загрузка из Firebase
+    function loadFromFirebase(callback) {
+        database.ref('bp_logs').limitToLast(1).on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                // Просто проверяем связь, данные загрузим позже если нужно
+                callback(true);
+            } else {
+                callback(true); // Даже если пусто, связь есть
+            }
+        }, (error) => {
+            console.error(error);
+            callback(false);
+        });
     }
 
     function calculate() {
@@ -82,10 +96,9 @@
         document.getElementById('res-pulse').innerText = avgP;
 
         const badge = document.getElementById('status-badge');
-        if (avgS >= 160 || avgD >= 100) {
-            badge.innerText = '⚠️ Гипертензия'; badge.style.background = '#f44336';
+        if (avgS >= 160 || avgD >= 100) {            badge.innerText = '⚠️ Гипертензия'; badge.style.background = '#f44336';
         } else if (avgS >= 140 || avgD >= 90) {
-            badge.innerText = '📈 Повышенное'; badge.style.background = '#ffc107'; badge.style.color = '#000';
+            badge.innerText = ' Повышенное'; badge.style.background = '#ffc107'; badge.style.color = '#000';
         } else if (avgS >= 120 || avgD >= 80) {
             badge.innerText = '⚡ Умеренно повышенное'; badge.style.background = '#8bc34a'; badge.style.color = '#000';
         } else {
@@ -97,6 +110,7 @@
         document.getElementById('saved-msg').style.display = 'none';
         document.getElementById('result-box').scrollIntoView({behavior: 'smooth'});
     }
+
     document.getElementById('save-btn').onclick = async function() {
         this.innerText = '⏳ Сохранение...';
         this.disabled = true;
@@ -116,6 +130,11 @@
             this.disabled = false;
         }
     };
+
+    // Проверка связи при старте
+    loadFromFirebase((ok) => {
+        if(!ok) console.log('Нет связи с Firebase');
+    });
 </script>
 </body>
 </html>
