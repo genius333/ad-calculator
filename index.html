@@ -2,139 +2,85 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АД-Калькулятор</title>
     <meta name="theme-color" content="#007bff">
-    <link rel="manifest" href="manifest.json">
-    <!-- Подключаем Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:15px}
         .header{text-align:center;margin-bottom:20px}
         .header h1{color:#007bff;margin:0;font-size:22px}
-        .header span{font-size:12px;color:#888;background:#e9ecef;padding:2px 6px;border-radius:4px}
         .card{background:#fff;border-radius:16px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-        .card-title{font-weight:bold;color:#007bff;margin-bottom:10px;font-size:16px;border-bottom:1px solid #eee;padding-bottom:5px}
+        .card-title{font-weight:bold;color:#007bff;margin-bottom:10px;font-size:16px}
         .input-group{margin-bottom:10px}
         .input-group label{display:block;font-size:13px;color:#666;margin-bottom:4px}
-        input[type="number"]{width:100%;box-sizing:border-box;padding:14px;font-size:18px;border:2px solid #e0e0e0;border-radius:12px;outline:none;transition:.2s;background:#fafafa}
-        input:focus{border-color:#007bff;background:#fff}
-        .btn-calc{width:100%;padding:16px;background:#007bff;color:#fff;border:none;border-radius:14px;font-size:18px;font-weight:bold;cursor:pointer;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,123,255,.3)}
-        #result-box{display:none;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin-bottom:20px}
-        .res-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:18px}
-        .res-val{font-weight:bold;font-size:22px}
-        .badge{text-align:center;padding:12px;border-radius:10px;color:#fff;font-weight:bold;margin:15px 0;font-size:18px}
-        #save-btn{width:100%;padding:16px;background:#28a745;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;display:none}
-        .saved-msg{text-align:center;color:#28a745;font-weight:bold;margin-top:10px;display:none}
+        input[type="number"]{width:100%;box-sizing:border-box;padding:14px;font-size:18px;border:2px solid #e0e0e0;border-radius:12px;outline:none}
+        .btn-calc{width:100%;padding:16px;background:#007bff;color:#fff;border:none;border-radius:14px;font-size:18px;font-weight:bold;cursor:pointer;margin:20px 0}
+        #result-box{display:none;background:#fff;border-radius:16px;padding:20px;margin:20px 0}
+        .badge{text-align:center;padding:12px;border-radius:10px;color:#fff;font-weight:bold;margin:15px 0}
     </style>
 </head>
 <body>
-<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v20.0 Firebase</span></div>
+<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v21.0 TEST</span></div>
 
-<div class="card"><div class="card-title">Замер №1</div><div class="input-group"><label>Верхнее</label><input type="number" id="s1" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d1" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p1" placeholder="70"></div></div>
-<div class="card"><div class="card-title">Замер №2</div><div class="input-group"><label>Верхнее</label><input type="number" id="s2" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d2" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p2" placeholder="70"></div></div>
-<div class="card"><div class="card-title">Замер №3</div><div class="input-group"><label>Верхнее</label><input type="number" id="s3" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d3" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p3" placeholder="70"></div></div>
+<div class="card">
+    <div class="card-title">Замер №1</div>
+    <div class="input-group"><label>Верхнее</label><input type="number" id="s1" value="120"></div>
+    <div class="input-group"><label>Нижнее</label><input type="number" id="d1" value="80"></div>
+    <div class="input-group"><label>Пульс</label><input type="number" id="p1" value="70"></div>
+</div>
 
-<button class="btn-calc" onclick="calculate()">🔥 РАССЧИТАТЬ</button>
+<div class="card">
+    <div class="card-title">Замер №2</div>
+    <div class="input-group"><label>Верхнее</label><input type="number" id="s2" value="120"></div>
+    <div class="input-group"><label>Нижнее</label><input type="number" id="d2" value="80"></div>
+    <div class="input-group"><label>Пульс</label><input type="number" id="p2" value="70"></div>
+</div>
+
+<div class="card">
+    <div class="card-title">Замер №3</div>
+    <div class="input-group"><label>Верхнее</label><input type="number" id="s3" value="120"></div>
+    <div class="input-group"><label>Нижнее</label><input type="number" id="d3" value="80"></div>
+    <div class="input-group"><label>Пульс</label><input type="number" id="p3" value="70"></div>
+</div>
+
+<button class="btn-calc" onclick="testCalculate()">🔥 РАССЧИТАТЬ</button>
 
 <div id="result-box">
-    <div class="res-row"><span>Среднее АД:</span><span class="res-val" id="res-bp">-- / --</span></div>
-    <div class="res-row"><span>Средний пульс:</span><span class="res-val" id="res-pulse">--</span></div>
+    <h3>Результат:</h3>
+    <p id="res-text"></p>
     <div class="badge" id="status-badge">Норма</div>
-    <button id="save-btn">☁️ Сохранить в облако (Firebase)</button>
-    <div class="saved-msg" id="saved-msg">✅ Сохранено!</div>
 </div>
 
 <script>
-    // 🔥 НАСТРОЙКИ FIREBASE (Вставлены автоматически)    const firebaseConfig = {
-      apiKey: "AIzaSyBx4YWnqSfcjFZ8gPRzUesE7omHCpSOas",
-      authDomain: "healthapp-d77d4.firebaseapp.com",
-      databaseURL: "https://healthapp-d77d4-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "healthapp-d77d4",
-      storageBucket: "healthapp-d77d4.firebasestorage.app",
-      messagingSenderId: "475996337263",
-      appId: "1:475996337263:web:e6f7ec8ebf529a8dbbc99a"
-    };
+    console.log('Script loaded!');
     
-    // Инициализация Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    
-    let avgS = 0, avgD = 0, avgP = 0;
-
-    // 🔹 Сохранение в Firebase
-    function saveToFirebase(data) {
-        const newRef = database.ref('bp_logs').push();
-        return newRef.set(data);
-    }
-
-    // 🔹 Загрузка из Firebase
-    function loadFromFirebase(callback) {
-        database.ref('bp_logs').limitToLast(1).on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                // Просто проверяем связь, данные загрузим позже если нужно
-                callback(true);
-            } else {
-                callback(true); // Даже если пусто, связь есть
-            }
-        }, (error) => {
-            console.error(error);
-            callback(false);
-        });
-    }
-
-    function calculate() {
-        const v = [1,2,3].map(i => [document.getElementById(`s${i}`).value, document.getElementById(`d${i}`).value, document.getElementById(`p${i}`).value]);
-        if (v.flat().some(x => !x)) { alert('Заполни все поля!'); return; }
-
-        avgS = Math.round((Number(v[0][0]) + Number(v[1][0]) + Number(v[2][0])) / 3);
-        avgD = Math.round((Number(v[0][1]) + Number(v[1][1]) + Number(v[2][1])) / 3);
-        avgP = Math.round((Number(v[0][2]) + Number(v[1][2]) + Number(v[2][2])) / 3);
-
-        document.getElementById('res-bp').innerText = `${avgS} / ${avgD}`;
-        document.getElementById('res-pulse').innerText = avgP;
-
-        const badge = document.getElementById('status-badge');
-        if (avgS >= 160 || avgD >= 100) {            badge.innerText = '⚠️ Гипертензия'; badge.style.background = '#f44336';
-        } else if (avgS >= 140 || avgD >= 90) {
-            badge.innerText = ' Повышенное'; badge.style.background = '#ffc107'; badge.style.color = '#000';
-        } else if (avgS >= 120 || avgD >= 80) {
-            badge.innerText = '⚡ Умеренно повышенное'; badge.style.background = '#8bc34a'; badge.style.color = '#000';
-        } else {
-            badge.innerText = '✅ Норма'; badge.style.background = '#4caf50'; badge.style.color = '#fff';
-        }
-
-        document.getElementById('result-box').style.display = 'block';
-        document.getElementById('save-btn').style.display = 'block';
-        document.getElementById('saved-msg').style.display = 'none';
-        document.getElementById('result-box').scrollIntoView({behavior: 'smooth'});
-    }
-
-    document.getElementById('save-btn').onclick = async function() {
-        this.innerText = '⏳ Сохранение...';
-        this.disabled = true;
+    function testCalculate() {
+        console.log('Button clicked!');
+        alert('Кнопка работает!');
         
-        try {
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const record = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
-            
-            await saveToFirebase(record);
-            
-            this.style.display = 'none';
-            document.getElementById('saved-msg').style.display = 'block';
-        } catch (e) {
-            alert('Ошибка: ' + e.message);
-            this.innerText = '☁️ Сохранить в облако (Firebase)';
-            this.disabled = false;
+        const s1 = parseInt(document.getElementById('s1').value) || 0;
+        const d1 = parseInt(document.getElementById('d1').value) || 0;
+        const s2 = parseInt(document.getElementById('s2').value) || 0;
+        const d2 = parseInt(document.getElementById('d2').value) || 0;
+        const s3 = parseInt(document.getElementById('s3').value) || 0;
+        const d3 = parseInt(document.getElementById('d3').value) || 0;
+        
+        const avgS = Math.round((s1 + s2 + s3) / 3);
+        const avgD = Math.round((d1 + d2 + d3) / 3);
+        
+        document.getElementById('res-text').innerText = `Среднее АД: ${avgS} / ${avgD}`;
+        document.getElementById('result-box').style.display = 'block';
+        
+        const badge = document.getElementById('status-badge');
+        if (avgS >= 140 || avgD >= 90) {
+            badge.innerText = '📈 Повышенное';
+            badge.style.background = '#ffc107';
+            badge.style.color = '#000';
+        } else {
+            badge.innerText = '✅ Норма';
+            badge.style.background = '#4caf50';
         }
-    };
-
-    // Проверка связи при старте
-    loadFromFirebase((ok) => {
-        if(!ok) console.log('Нет связи с Firebase');
-    });
+    }
 </script>
 </body>
 </html>
