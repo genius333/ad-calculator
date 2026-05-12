@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v14.0 Final</span></div>
+<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v15.0 YandexDisk</span></div>
 
 <div class="card"><div class="card-title">Замер №1</div><div class="input-group"><label>Верхнее</label><input type="number" id="s1" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d1" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p1" placeholder="70"></div></div>
 <div class="card"><div class="card-title">Замер №2</div><div class="input-group"><label>Верхнее</label><input type="number" id="s2" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d2" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p2" placeholder="70"></div></div>
@@ -39,16 +39,51 @@
     <div class="res-row"><span>Среднее АД:</span><span class="res-val" id="res-bp">-- / --</span></div>
     <div class="res-row"><span>Средний пульс:</span><span class="res-val" id="res-pulse">--</span></div>
     <div class="badge" id="status-badge">Норма</div>
-    <button id="save-btn">☁️ Сохранить в облако</button>
-    <div class="saved-msg" id="saved-msg">✅ Сохранено в облако!</div>
+    <button id="save-btn">☁️ Сохранить на Яндекс.Диск</button>
+    <div class="saved-msg" id="saved-msg">✅ Сохранено!</div>
 </div>
 
 <script>
-    const GIST_ID = '969fd26ad9b155097eed81b0449a306f';
-    const ENCODED_TOKEN = 'Z2hwX2pVM0RtSXlFU3VEVDNnQ0xsc0g5NG45WHNYa01UZTJPTlRSVA==';
-    const TOKEN = atob(ENCODED_TOKEN);
-        let avgS = 0, avgD = 0, avgP = 0;
+    const TOKEN = 'y0__wgBENeBtZgCGJTJQSCQlOOyFzCyibq-Cln5-flyhzlr-9hCHPrP82FEdAea';
+    const HEADERS = { 'Authorization': `OAuth ${TOKEN}`, 'Content-Type': 'application/json' };
+    const BASE_URL = 'https://cloud-api.yandex.net/v1/disk/resources';
+    const FILE_PATH = 'disk:/bp_logs.json';    
+    let avgS = 0, avgD = 0, avgP = 0;
     let currentData = [];
+
+    // 🔹 Яндекс.Диск API
+    async function yandexCheckFile() {
+        const res = await fetch(`${BASE_URL}?path=${encodeURIComponent(FILE_PATH)}`, { headers: HEADERS });
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Ошибка проверки файла');
+        const data = await res.json();
+        return data.file ? data.file.href : null;
+    }
+
+    async function yandexGetUploadUrl() {
+        const res = await fetch(`${BASE_URL}/upload?path=${encodeURIComponent(FILE_PATH)}&overwrite=true`, { headers: HEADERS });
+        if (!res.ok) throw new Error('Не удалось получить ссылку для загрузки');
+        const data = await res.json();
+        return data.href;
+    }
+
+    async function saveToYandex(jsonString) {
+        const uploadUrl = await yandexGetUploadUrl();
+        const res = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: jsonString
+        });
+        if (!res.ok) throw new Error('Ошибка загрузки на Диск');
+    }
+
+    async function loadFromYandex() {
+        const downloadUrl = await yandexCheckFile();
+        if (!downloadUrl) return [];
+        const res = await fetch(downloadUrl);
+        if (!res.ok) throw new Error('Ошибка чтения с Диска');
+        return await res.json();
+    }
 
     function calculate() {
         const v = [1,2,3].map(i => [document.getElementById(`s${i}`).value, document.getElementById(`d${i}`).value, document.getElementById(`p${i}`).value]);
@@ -61,8 +96,7 @@
         document.getElementById('res-bp').innerText = `${avgS} / ${avgD}`;
         document.getElementById('res-pulse').innerText = avgP;
 
-        const badge = document.getElementById('status-badge');
-        if (avgS >= 160 || avgD >= 100) {
+        const badge = document.getElementById('status-badge');        if (avgS >= 160 || avgD >= 100) {
             badge.innerText = '⚠️ Гипертензия'; badge.style.background = '#f44336';
         } else if (avgS >= 140 || avgD >= 90) {
             badge.innerText = '📈 Повышенное'; badge.style.background = '#ffc107'; badge.style.color = '#000';
@@ -78,47 +112,30 @@
         document.getElementById('result-box').scrollIntoView({behavior: 'smooth'});
     }
 
-    async function saveToGist() {
-        const now = new Date();
-        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        
-        const newRecord = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
-        const updatedData = [newRecord, ...currentData];
-
-        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files: { 'bp_logs.json': { content: JSON.stringify(updatedData) } } })
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(`GitHub Error ${res.status}: ${errorText}`);
-        }
-        return true;
-    }
     document.getElementById('save-btn').onclick = async function() {
         this.innerText = '⏳ Сохранение...';
         this.disabled = true;
         
         try {
-            await saveToGist();
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const newRecord = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
+            const updatedData = [newRecord, ...currentData];
+            
+            await saveToYandex(JSON.stringify(updatedData));
+            currentData = updatedData;
+            
             this.style.display = 'none';
             document.getElementById('saved-msg').style.display = 'block';
         } catch (e) {
             alert('Ошибка: ' + e.message);
-            this.innerText = '☁️ Сохранить в облако';
+            this.innerText = '☁️ Сохранить на Яндекс.Диск';
             this.disabled = false;
         }
     };
 
-    fetch(`https://api.github.com/gists/${GIST_ID}`, {
-        headers: { 'Authorization': `Bearer ${TOKEN}` }
-    }).then(res => res.json()).then(data => {
-        if (data.files && data.files['bp_logs.json']) {
-            currentData = JSON.parse(data.files['bp_logs.json'].content);
-        }
-    });
+    // Загрузка данных при старте
+    loadFromYandex().then(data => { currentData = data; }).catch(() => {});
 </script>
 </body>
 </html>
