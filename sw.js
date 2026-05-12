@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ad-calc-v7';
+const CACHE_NAME = 'ad-calc-v8';
 const ASSETS = [
   './',
   './index.html',
