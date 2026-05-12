@@ -6,6 +6,9 @@
     <title>АД-Калькулятор</title>
     <meta name="theme-color" content="#007bff">
     <link rel="manifest" href="manifest.json">
+    <!-- Подключаем Firebase (версия 8, она проще для вставки в HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:15px}
         .header{text-align:center;margin-bottom:20px}
@@ -27,7 +30,7 @@
     </style>
 </head>
 <body>
-<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v15.0 YandexDisk</span></div>
+<div class="header"><h1>🩺 АД-Калькулятор</h1><span>v20.0 Firebase</span></div>
 
 <div class="card"><div class="card-title">Замер №1</div><div class="input-group"><label>Верхнее</label><input type="number" id="s1" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d1" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p1" placeholder="70"></div></div>
 <div class="card"><div class="card-title">Замер №2</div><div class="input-group"><label>Верхнее</label><input type="number" id="s2" placeholder="120"></div><div class="input-group"><label>Нижнее</label><input type="number" id="d2" placeholder="80"></div><div class="input-group"><label>Пульс</label><input type="number" id="p2" placeholder="70"></div></div>
@@ -39,50 +42,32 @@
     <div class="res-row"><span>Среднее АД:</span><span class="res-val" id="res-bp">-- / --</span></div>
     <div class="res-row"><span>Средний пульс:</span><span class="res-val" id="res-pulse">--</span></div>
     <div class="badge" id="status-badge">Норма</div>
-    <button id="save-btn">☁️ Сохранить на Яндекс.Диск</button>
+    <button id="save-btn">☁️ Сохранить в облако (Firebase)</button>
     <div class="saved-msg" id="saved-msg">✅ Сохранено!</div>
 </div>
 
 <script>
-    const TOKEN = 'y0__wgBENeBtZgCGJTJQSCQlOOyFzCyibq-Cln5-flyhzlr-9hCHPrP82FEdAea';
-    const HEADERS = { 'Authorization': `OAuth ${TOKEN}`, 'Content-Type': 'application/json' };
-    const BASE_URL = 'https://cloud-api.yandex.net/v1/disk/resources';
-    const FILE_PATH = 'disk:/bp_logs.json';    
+    //  ТВОИ НАСТРОЙКИ FIREBASE    const firebaseConfig = {
+      apiKey: "AIzaSyBx4YWnqSfcjFZ8gPRzUesE7omHCpSOas",
+      authDomain: "healthapp-d77d4.firebaseapp.com",
+      databaseURL: "https://healthapp-d77d4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "healthapp-d77d4",
+      storageBucket: "healthapp-d77d4.firebasestorage.app",
+      messagingSenderId: "475996337263",
+      appId: "1:475996337263:web:e6f7ec8ebf529a8dbbc99a"
+    };
+    
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
     let avgS = 0, avgD = 0, avgP = 0;
-    let currentData = [];
 
-    // 🔹 Яндекс.Диск API
-    async function yandexCheckFile() {
-        const res = await fetch(`${BASE_URL}?path=${encodeURIComponent(FILE_PATH)}`, { headers: HEADERS });
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error('Ошибка проверки файла');
-        const data = await res.json();
-        return data.file ? data.file.href : null;
-    }
-
-    async function yandexGetUploadUrl() {
-        const res = await fetch(`${BASE_URL}/upload?path=${encodeURIComponent(FILE_PATH)}&overwrite=true`, { headers: HEADERS });
-        if (!res.ok) throw new Error('Не удалось получить ссылку для загрузки');
-        const data = await res.json();
-        return data.href;
-    }
-
-    async function saveToYandex(jsonString) {
-        const uploadUrl = await yandexGetUploadUrl();
-        const res = await fetch(uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: jsonString
-        });
-        if (!res.ok) throw new Error('Ошибка загрузки на Диск');
-    }
-
-    async function loadFromYandex() {
-        const downloadUrl = await yandexCheckFile();
-        if (!downloadUrl) return [];
-        const res = await fetch(downloadUrl);
-        if (!res.ok) throw new Error('Ошибка чтения с Диска');
-        return await res.json();
+    // 🔹 Сохранение в Firebase
+    function saveToFirebase(data) {
+        // Создаем новую запись в папке 'bp_logs'
+        const newRef = database.ref('bp_logs').push();
+        return newRef.set(data);
     }
 
     function calculate() {
@@ -96,7 +81,8 @@
         document.getElementById('res-bp').innerText = `${avgS} / ${avgD}`;
         document.getElementById('res-pulse').innerText = avgP;
 
-        const badge = document.getElementById('status-badge');        if (avgS >= 160 || avgD >= 100) {
+        const badge = document.getElementById('status-badge');
+        if (avgS >= 160 || avgD >= 100) {
             badge.innerText = '⚠️ Гипертензия'; badge.style.background = '#f44336';
         } else if (avgS >= 140 || avgD >= 90) {
             badge.innerText = '📈 Повышенное'; badge.style.background = '#ffc107'; badge.style.color = '#000';
@@ -111,7 +97,6 @@
         document.getElementById('saved-msg').style.display = 'none';
         document.getElementById('result-box').scrollIntoView({behavior: 'smooth'});
     }
-
     document.getElementById('save-btn').onclick = async function() {
         this.innerText = '⏳ Сохранение...';
         this.disabled = true;
@@ -119,23 +104,18 @@
         try {
             const now = new Date();
             const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const newRecord = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
-            const updatedData = [newRecord, ...currentData];
+            const record = { date: dateStr, systolic: avgS, diastolic: avgD, pulse: avgP };
             
-            await saveToYandex(JSON.stringify(updatedData));
-            currentData = updatedData;
+            await saveToFirebase(record);
             
             this.style.display = 'none';
             document.getElementById('saved-msg').style.display = 'block';
         } catch (e) {
             alert('Ошибка: ' + e.message);
-            this.innerText = '☁️ Сохранить на Яндекс.Диск';
+            this.innerText = '☁️ Сохранить в облако (Firebase)';
             this.disabled = false;
         }
     };
-
-    // Загрузка данных при старте
-    loadFromYandex().then(data => { currentData = data; }).catch(() => {});
 </script>
 </body>
 </html>
